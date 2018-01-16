@@ -155,13 +155,17 @@ class FLAMWidget(QtGui.QWidget):
 class ProjectInfoFrame(QtGui.QFrame):
     def __init__(self, parent = None):
         super(ProjectInfoFrame, self).__init__(parent)
-
+        
+        ###
+        ###TEMP HARD CODED
         self.labelTextColor = "rgb(150, 150, 150)"
         self.InfoTextColor = "rgb(220, 220, 220)"
 
-        self.projectName = "Test Project"
-        self.shotName = "SHOT NAYEM"
-        self.shotFrameRange = "tRange 1-57"
+        self.projectName = "Terminator 20 Billion"
+        self.shotName = "Serious Test Shot"
+        self.shotFrameRange = "1-57"
+        ###
+        ###
 
         self.buildFrame()
         self.buildInfoLabels()
@@ -174,50 +178,48 @@ class ProjectInfoFrame(QtGui.QFrame):
         self.setMaximumSize(400,180)
         self.setStyleSheet("background-color: rgb(50, 50, 50)")
 
+
     def buildInfoLabels(self):
-        
-        self.pNameLabel = QtGui.QLabel('Project Name:')
-        self.pNameLabel.setStyleSheet("QLabel {color: %s ; font: bold 16pt Calibri  }"% self.labelTextColor)
 
-        self.pName = QtGui.QLabel(self.projectName)
-        self.pName.setStyleSheet("QLabel {color: %s ; font: 16pt Calibri  }"% self.InfoTextColor)
-        
-        self.pNameLayout = QtGui.QHBoxLayout()
-        self.pNameLayout.addWidget(self.pNameLabel)
-        self.pNameLayout.addWidget(self.pName)
-        self.pNameLayout.addStretch(0)
+        self.projectNameLabel = ProjectInfoLabel('Project Name:', self.projectName, self.labelTextColor, self.InfoTextColor)
 
+        self.shotNameLabel = ProjectInfoLabel('Shot Name:', self.shotName, self.labelTextColor, self.InfoTextColor)
 
+        self.shotFrameRangeLabel = ProjectInfoLabel('Frame Range:', self.shotFrameRange, self.labelTextColor, self.InfoTextColor)
 
-        self.sNameLabel = QtGui.QLabel('Shot Name:')
-        self.sNameLabel.setStyleSheet("QLabel {color: %s ; font: bold 16pt Calibri  }"% self.labelTextColor)
-
-        self.sName = QtGui.QLabel(self.shotName)
-        self.sName.setStyleSheet("QLabel {color: %s ; font: 16pt Calibri  }"% self.InfoTextColor)
-
-        self.sNameLayout = QtGui.QHBoxLayout()
-        self.sNameLayout.addWidget(self.sNameLabel)
-        self.sNameLayout.addWidget(self.sName)
-        self.sNameLayout.addStretch(0) 
-
-        self.sFrameRangeLabel = QtGui.QLabel('Frame Range:')
-        self.sFrameRangeLabel.setStyleSheet("QLabel {color: %s ; font: bold 16pt Calibri  }"% self.labelTextColor)
-
-        self.sFrameRange = QtGui.QLabel(self.shotFrameRange)
-        self.sFrameRange.setStyleSheet("QLabel {color: %s ; font: 16pt Calibri  }"% self.InfoTextColor)
-
-        self.sFrameRangeLayout = QtGui.QHBoxLayout()
-        self.sFrameRangeLayout.addWidget(self.sFrameRangeLabel)
-        self.sFrameRangeLayout.addWidget(self.sFrameRange)
-        self.sFrameRangeLayout.addStretch(0)
 
     def buildLayout(self):
         self.shot_info_layout = QtGui.QVBoxLayout()
-        self.shot_info_layout.addLayout(self.pNameLayout)
-        self.shot_info_layout.addLayout(self.sNameLayout)
-        self.shot_info_layout.addLayout(self.sFrameRangeLayout)
+        self.shot_info_layout.addLayout(self.projectNameLabel)
+        self.shot_info_layout.addLayout(self.shotNameLabel)
+        self.shot_info_layout.addLayout(self.shotFrameRangeLabel)
         self.shot_info_layout.addStretch(0)
-        self.setLayout(self.shot_info_layout) 
+        self.setLayout(self.shot_info_layout)
+
+
+class ProjectInfoLabel(QtGui.QHBoxLayout):
+    def __init__(self, title, content, titleColor, contentColor):
+        super(ProjectInfoLabel, self).__init__()
+        self.titleColor = titleColor
+        self.contentColor = contentColor
+        self.title = title
+        self.content = content
+
+        self.initLabel()
+
+
+        #rename to be appropriate
+    def initLabel(self):
+        self.titleLabel = QtGui.QLabel(self.title)
+        self.titleLabel.setStyleSheet("QLabel {color: %s ; font: bold 16pt Calibri  }" % self.titleColor)
+
+        self.contentLabel = QtGui.QLabel(self.content)
+        self.contentLabel.setStyleSheet("QLabel {color: %s ; font: 16pt Calibri  }" % self.contentColor)
+        
+        #self.ProjectInfoLabelLayout = QtGui.QHBoxLayout()
+        self.addWidget(self.titleLabel)
+        self.addWidget(self.contentLabel)
+        self.addStretch(0)
 
 class Example(QtGui.QWidget):
 
