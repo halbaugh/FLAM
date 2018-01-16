@@ -32,6 +32,12 @@ class FlamGui(QtGui.QMainWindow):
         openProjectAction.setStatusTip('Open a project...')
         openProjectAction.triggered.connect(self.openProject)
 
+        ###File/Test Function 
+        testFunctionAction = QtGui.QAction('&Test Function', self)
+        testFunctionAction.setShortcut('Ctrl+T')
+        testFunctionAction.setStatusTip('Test Function...')
+        testFunctionAction.triggered.connect(self.testFunc)
+
 
 
         status = self.statusBar().setStyleSheet("statusBar" + self.appStyle)
@@ -68,6 +74,7 @@ class FlamGui(QtGui.QMainWindow):
 
         fileMenu = menubar.addMenu('&File')
         fileMenu.addAction(openProjectAction)
+        fileMenu.addAction(testFunctionAction)
         fileMenu.addAction(exitAction)
 
         self.resize(1200, 700)
@@ -95,9 +102,20 @@ class FlamGui(QtGui.QMainWindow):
 
 
     def openProject(self):
+
+
+
         QtGui.QMessageBox.question(self, 'Placeholder',
             "This is a placeholder button.", QtGui.QMessageBox.Ok )
 
+
+    #Used to test anything.......
+    def testFunc(self):
+        ###HOW DO I GET RID OF THIS MONSTER EFFICIENTLY?!?!?
+        ###
+        self.flam_widget.infoPane.projectNameLabel.setContent("Pine Apple Express: 7")
+        ###
+        ###
 
     def closeEvent(self, event):
         reply = QtGui.QMessageBox.question(self, 'Message', "Are you sure to quit?", 
@@ -155,11 +173,11 @@ class FLAMWidget(QtGui.QWidget):
 class ProjectInfoFrame(QtGui.QFrame):
     def __init__(self, parent = None):
         super(ProjectInfoFrame, self).__init__(parent)
-        
+
         ###
         ###TEMP HARD CODED
         self.labelTextColor = "rgb(150, 150, 150)"
-        self.InfoTextColor = "rgb(220, 220, 220)"
+        self.infoTextColor = "rgb(220, 220, 220)"
 
         self.projectName = "Terminator 20 Billion"
         self.shotName = "Serious Test Shot"
@@ -178,14 +196,12 @@ class ProjectInfoFrame(QtGui.QFrame):
         self.setMaximumSize(400,180)
         self.setStyleSheet("background-color: rgb(50, 50, 50)")
 
-
+    #Would it be faster to edit instead of rebuild? Might be worth making all of this easily accessable.
     def buildInfoLabels(self):
 
-        self.projectNameLabel = ProjectInfoLabel('Project Name:', self.projectName, self.labelTextColor, self.InfoTextColor)
-
-        self.shotNameLabel = ProjectInfoLabel('Shot Name:', self.shotName, self.labelTextColor, self.InfoTextColor)
-
-        self.shotFrameRangeLabel = ProjectInfoLabel('Frame Range:', self.shotFrameRange, self.labelTextColor, self.InfoTextColor)
+        self.projectNameLabel = ProjectInfoLabel('Project Name:', self.projectName, self.labelTextColor, self.infoTextColor)
+        self.shotNameLabel = ProjectInfoLabel('Shot Name:', self.shotName, self.labelTextColor, self.infoTextColor)
+        self.shotFrameRangeLabel = ProjectInfoLabel('Frame Range:', self.shotFrameRange, self.labelTextColor, self.infoTextColor)
 
 
     def buildLayout(self):
@@ -207,55 +223,40 @@ class ProjectInfoLabel(QtGui.QHBoxLayout):
 
         self.initLabel()
 
-
-        #rename to be appropriate
     def initLabel(self):
+        #Creating title label
         self.titleLabel = QtGui.QLabel(self.title)
         self.titleLabel.setStyleSheet("QLabel {color: %s ; font: bold 16pt Calibri  }" % self.titleColor)
 
+        #Creating content label
         self.contentLabel = QtGui.QLabel(self.content)
         self.contentLabel.setStyleSheet("QLabel {color: %s ; font: 16pt Calibri  }" % self.contentColor)
-        
-        #self.ProjectInfoLabelLayout = QtGui.QHBoxLayout()
+
+        #Adding to self.layout
         self.addWidget(self.titleLabel)
         self.addWidget(self.contentLabel)
         self.addStretch(0)
 
-class Example(QtGui.QWidget):
 
-    def __init__(self):
-        super(Example, self).__init__()
+    def getTitle(self):
+        return self.title
 
-        self.initUI()
+    def setTitle(self, newTitle):
+        if not self.title == newTitle:
+            self.title = newTitle
+            self.updateGui()
 
-    def initUI(self):
+    def getContent(self):
+        return self.content
 
-        frame = QtGui.QFrame()
-        frame.setFrameStyle(QtGui.QFrame.Panel | QtGui.QFrame.Plain)
+    def setContent(self, newContent):
+        if not self.content == newContent:
+            self.content = newContent
+            self.updateGui()
 
-        label = QtGui.QLabel('This is random text')
-
-        #dockWidget = QtGui.QDockWidget('Stuff', self)
-        # set the widget to non-movable, non-floatable and non-closable
-        #dockWidget.setFeatures(dockWidget.NoDockWidgetFeatures)
-        #dockWidget.setWidget(label)
-
-        # add the QDockWidget to the QLayout
-        hbox = QtGui.QHBoxLayout()
-        hbox.addWidget(label)
-
-        # set the layout of the QFrame
-        frame.setLayout(hbox)
-
-        # create another QLayout to add QFrame
-        vbox = QtGui.QVBoxLayout()
-        vbox.addStretch(1)
-        vbox.addWidget(frame)
-
-        self.setLayout(vbox)
-
-        self.setGeometry(300, 300, 500, 400)
-        self.setWindowTitle('Test')
+    def updateGui(self):
+        self.titleLabel.setText(self.title)
+        self.contentLabel.setText(self.content)
 
 
 
