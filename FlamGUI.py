@@ -7,8 +7,9 @@ import sys
 from PySide import QtGui
 from PySide import QtCore
 
+
+#MAIN GUI WINDOW
 class FlamGui(QtGui.QMainWindow):
-    
     def __init__(self, parent = None):
         super(FlamGui, self).__init__(parent)
 
@@ -127,7 +128,7 @@ class FlamGui(QtGui.QMainWindow):
         else:
             event.ignore()    
         
-
+#LAYOUTS FOR WINDOW
 class FLAMWidget(QtGui.QWidget):
 
     def __init__(self, parent):
@@ -142,25 +143,35 @@ class FLAMWidget(QtGui.QWidget):
 
         #self.test_button = QtGui.QPushButton("Click me")
         
+        #Top Left Pane
+        self.infoPane = ProjectInfoFrame()
 
+        #Top Right Pane
+        '''
+        self.tempImage = QtGui.QPixmap("icons/temp.png")
         self.asset_viewer_frame = QtGui.QFrame(self)
         self.asset_viewer_frame.setFrameShape(QtGui.QFrame.StyledPanel)
         self.asset_viewer_frame.setFrameStyle(QtGui.QFrame.Sunken)
-        self.asset_viewer_frame.setStyleSheet("background-color: rgb(50, 50, 50)")
+        self.asset_viewer_frame.setStyleSheet("background-color: rgb(53, 50, 50)")
+        '''
+        self.assetFrame = AssetViewerFrame()
+        #self.asset_viewer_frame.setPixmap(self.tempImage)
+        
 
+
+        #Bottom Pane
         self.assets_frame = QtGui.QFrame(self)
         self.assets_frame.setFrameShape(QtGui.QFrame.StyledPanel)
-        #self.assets_frame.setFrameStyle(QtGui.QFrame.Sunken)
         self.assets_frame.setStyleSheet("background-color: rgb(50, 50, 50)")
 
+        #Creating Layouts
         self.rootVbox = QtGui.QVBoxLayout()
         self.topBox = QtGui.QHBoxLayout()
         self.bottomBox = QtGui.QHBoxLayout()
 
-        self.infoPane = ProjectInfoFrame()
-
+        #Adding widgets to layouts
         self.topBox.addWidget(self.infoPane)
-        self.topBox.addWidget(self.asset_viewer_frame)
+        self.topBox.addWidget(self.assetFrame)
         self.bottomBox.addWidget(self.assets_frame)
 
         #self.rootVbox.addStretch(1)
@@ -169,6 +180,38 @@ class FLAMWidget(QtGui.QWidget):
 
         self.setLayout(self.rootVbox)
 
+
+class AssetViewerFrame(QtGui.QFrame):
+    def __init__(self, parent = None):
+        super(AssetViewerFrame, self).__init__(parent)
+
+        ###
+        ###TEMP HARD CODED
+        self.tempImage = QtGui.QPixmap("icons/temp.png")
+        ###
+        ###
+
+        self.buildFrame()
+        self.buildContent()
+        self.buildLayout()
+
+
+    def buildFrame(self):
+        self.setFrameShape(QtGui.QFrame.StyledPanel)
+        self.setFrameStyle(QtGui.QFrame.Sunken)
+        self.setMaximumSize(400,180)
+        self.setStyleSheet("background-color: rgb(53, 50, 50)")
+
+    #Would it be faster to edit instead of rebuild? Might be worth making all of this easily accessable.
+    def buildContent(self):
+        self.imgLabel = QtGui.QLabel(self)
+        self.imgLabel.setPixmap(self.tempImage)
+
+
+    def buildLayout(self):
+        self.asset_info_layout = QtGui.QVBoxLayout()
+        self.asset_info_layout.addStretch(0)
+        self.setLayout(self.asset_info_layout)
 
 class ProjectInfoFrame(QtGui.QFrame):
     def __init__(self, parent = None):
