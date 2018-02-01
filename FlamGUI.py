@@ -7,6 +7,13 @@ import sys
 from PySide import QtGui
 from PySide import QtCore
 
+import QTCSS as css
+
+import dbQueries as db
+from dbQueries import DATABASE_LOCATION
+
+print "FlamGui - DBLOC - %s" % DATABASE_LOCATION
+
 
 #MAIN GUI WINDOW
 class FlamGui(QtGui.QMainWindow):
@@ -44,33 +51,10 @@ class FlamGui(QtGui.QMainWindow):
         status = self.statusBar().setStyleSheet("statusBar" + self.appStyle)
 
         menubar = self.menuBar()
-        menubar.setStyleSheet("""
-            QMenuBar {
-                background-color: rgb(60, 60, 60);
-                color: rgb(255,255,255);
-                border: 1px solid #000;
-            }
 
-            QMenuBar::item {
-                background-color: rgb(60, 60, 60);
-                color: rgb(255,255,255);
-            }
+        menubar.setStyleSheet(css.menubarCSS)
 
-            QMenuBar::item::selected {
-                background-color: rgb(100, 100, 100);
-            }
 
-            QMenu {
-                background-color: rgb(60, 60, 60);
-                color: rgb(255,255,255);
-                border: 1px solid #000;           
-            }
-
-            QMenu::item::selected {
-
-                background-color: rgb(100, 100, 100);
-            }
-            """)
 
 
         fileMenu = menubar.addMenu('&File')
@@ -143,19 +127,15 @@ class FLAMWidget(QtGui.QWidget):
 
         #self.test_button = QtGui.QPushButton("Click me")
         
+        #Top Left Show Selection Panel
+        self.showSelectionPane = ShowSelectionPanel()
+
         #Top Left Pane
         self.infoPane = ProjectInfoFrame()
 
+
         #Top Right Pane
-        '''
-        self.tempImage = QtGui.QPixmap("icons/temp.png")
-        self.asset_viewer_frame = QtGui.QFrame(self)
-        self.asset_viewer_frame.setFrameShape(QtGui.QFrame.StyledPanel)
-        self.asset_viewer_frame.setFrameStyle(QtGui.QFrame.Sunken)
-        self.asset_viewer_frame.setStyleSheet("background-color: rgb(53, 50, 50)")
-        '''
         self.assetFrame = AssetViewerFrame()
-        #self.asset_viewer_frame.setPixmap(self.tempImage)
         
 
 
@@ -163,11 +143,31 @@ class FLAMWidget(QtGui.QWidget):
         self.assets_frame = QtGui.QFrame(self)
         self.assets_frame.setFrameShape(QtGui.QFrame.StyledPanel)
         self.assets_frame.setStyleSheet("background-color: rgb(50, 50, 50)")
+        self.assets_frame.setFrameStyle(QtGui.QFrame.Sunken)
 
         #Creating Layouts
         self.rootVbox = QtGui.QVBoxLayout()
         self.topBox = QtGui.QHBoxLayout()
         self.bottomBox = QtGui.QHBoxLayout()
+        self.splitterLayout = QtGui.QVBoxLayout()
+
+        #splitter testing -- HORIZONTAL
+        self.splitter1 = QtGui.QSplitter(QtCore.Qt.Horizontal)
+        self.splitter1.addWidget(self.showSelectionPane)
+        self.splitter1.addWidget(self.infoPane)
+        self.splitter1.addWidget(self.assetFrame)
+        self.splitter1.setStretchFactor(1,10)
+        
+        #self.splitter1.setSizes([1000,200])
+
+        #splitter testing -- VERTICAL
+        self.splitter2 = QtGui.QSplitter(QtCore.Qt.Vertical)
+        self.splitter2.addWidget(self.splitter1)
+        self.splitter2.addWidget(self.assets_frame)
+        self.splitter2.setStretchFactor(1,10)
+        self.splitter2.setStyleSheet(css.splitterCSS)
+
+        self.splitterLayout.addWidget(self.splitter2)
 
         #Adding widgets to layouts
         self.topBox.addWidget(self.infoPane)
@@ -178,7 +178,7 @@ class FLAMWidget(QtGui.QWidget):
         self.rootVbox.addLayout(self.topBox)
         self.rootVbox.addLayout(self.bottomBox)
 
-        self.setLayout(self.rootVbox)
+        self.setLayout(self.splitterLayout)
 
 
 class AssetViewerFrame(QtGui.QFrame):
@@ -188,8 +188,9 @@ class AssetViewerFrame(QtGui.QFrame):
         ###
         ###TEMP HARD CODED
         self.tempImage = QtGui.QPixmap("icons/temp.png")
+        self.tempImage = self.tempImage.scaled(250, 250, QtCore.Qt.KeepAspectRatio) 
         ###
-        ###
+        ###FRAME STILL NEEDS TO BE RESIZED SO ITS NOT HUGE
 
         self.buildFrame()
         self.buildContent()
@@ -199,10 +200,9 @@ class AssetViewerFrame(QtGui.QFrame):
     def buildFrame(self):
         self.setFrameShape(QtGui.QFrame.StyledPanel)
         self.setFrameStyle(QtGui.QFrame.Sunken)
-        self.setMaximumSize(400,180)
+        #self.setMaximumSize(400,180)
         self.setStyleSheet("background-color: rgb(53, 50, 50)")
 
-    #Would it be faster to edit instead of rebuild? Might be worth making all of this easily accessable.
     def buildContent(self):
         self.imgLabel = QtGui.QLabel(self)
         self.imgLabel.setPixmap(self.tempImage)
@@ -211,7 +211,39 @@ class AssetViewerFrame(QtGui.QFrame):
     def buildLayout(self):
         self.asset_info_layout = QtGui.QVBoxLayout()
         self.asset_info_layout.addStretch(0)
+        self.asset_info_layout.addWidget(self.imgLabel)
         self.setLayout(self.asset_info_layout)
+
+
+class AssetBrowserFrame(QtGui.QFrame):
+    def __init__(self, parent = None):
+        super(AssetBrowserFrame, self).__init__(parent)
+
+        ###
+        ###TEMP HARD CODED
+        ###
+
+        self.buildFrame()
+        self.buildContent()
+        self.buildLayout()
+
+
+    def buildFrame(self):   
+        self.setFrameShape(QtGui.QFrame.StyledPanel)
+        self.setFrameStyle(QtGui.QFrame.Sunken)
+        self.setStyleSheet("background-color: rgb(50, 50, 50)")
+
+    def buildContent(self):
+        self.imgLabel = QtGui.QLabel(self)
+        self.imgLabel.setPixmap(self.tempImage)
+
+
+    def buildLayout(self):
+        self.asset_info_layout = QtGui.QVBoxLayout()
+        self.asset_info_layout.addStretch(0)
+        self.asset_info_layout.addWidget(self.imgLabel)
+        self.setLayout(self.asset_info_layout)
+
 
 class ProjectInfoFrame(QtGui.QFrame):
     def __init__(self, parent = None):
@@ -236,7 +268,7 @@ class ProjectInfoFrame(QtGui.QFrame):
     def buildFrame(self):
         self.setFrameShape(QtGui.QFrame.StyledPanel)
         self.setFrameStyle(QtGui.QFrame.Sunken)
-        self.setMaximumSize(400,180)
+        #self.setMaximumSize(400,180)
         self.setStyleSheet("background-color: rgb(50, 50, 50)")
 
     #Would it be faster to edit instead of rebuild? Might be worth making all of this easily accessable.
@@ -252,6 +284,70 @@ class ProjectInfoFrame(QtGui.QFrame):
         self.shot_info_layout.addLayout(self.projectNameLabel)
         self.shot_info_layout.addLayout(self.shotNameLabel)
         self.shot_info_layout.addLayout(self.shotFrameRangeLabel)
+        self.shot_info_layout.addStretch(0)
+        self.setLayout(self.shot_info_layout)
+
+class ShowSelectionPanel(QtGui.QFrame):
+    def __init__(self, parent = None):
+        super(ShowSelectionPanel, self).__init__(parent)
+
+        ###
+        ###TEMP HARD CODED
+        self.labelTextColor = "rgb(150, 150, 150)"
+        self.infoTextColor = "rgb(220, 220, 220)"
+
+        self.projectName = "Terminator 20 Billion"
+        self.shotName = "Serious Test Shot"
+        self.shotFrameRange = "1-57"
+        ###
+        ###
+
+        self.buildFrame()
+        self.buildComboBoxes()
+        self.buildLayout()
+
+
+    def buildFrame(self):
+        self.setFrameShape(QtGui.QFrame.StyledPanel)
+        self.setFrameStyle(QtGui.QFrame.Sunken)
+        #self.setMaximumSize(400,180)
+        self.setStyleSheet("background-color: rgb(50, 50, 50)")
+
+    #Would it be faster to edit instead of rebuild? Might be worth making all of this easily accessable.
+    def buildComboBoxes(self):
+
+        ####PROJECT LIST COMBO BOX
+        #print "INIT SHOW COMBO BOXES."
+        showList = db.getAllShows()
+        
+        self.projectCombo = QtGui.QComboBox(self)
+        for s in showList:
+            self.projectCombo.addItem(s.getName())
+        self.projectCombo.setStyleSheet(css.showComboBoxCSS)
+
+        #NOT THE BEST WAY TO DO THIS
+        #WILL HAVE TO ELIMINATE THE POSSIBILITY OF DUPLICATES
+        curShowName = self.projectCombo.currentText()
+        curShowId = db.getShow(curShowName).getShowID()
+        curShotList = db.getAllShots(curShowId)
+    
+        ####SHOT LIST FOR CURRENT PROJECT
+        self.shotCombo = QtGui.QComboBox(self)
+
+        if curShotList:
+            for s in curShotList:
+                self.shotCombo.addItem(s.getName())
+        self.shotCombo.setStyleSheet(css.showComboBoxCSS)
+
+        #print "FINISHED COMBO BOX INIT."
+
+
+
+
+    def buildLayout(self):
+        self.shot_info_layout = QtGui.QVBoxLayout()
+        self.shot_info_layout.addWidget(self.projectCombo)
+        self.shot_info_layout.addWidget(self.shotCombo)
         self.shot_info_layout.addStretch(0)
         self.setLayout(self.shot_info_layout)
 
