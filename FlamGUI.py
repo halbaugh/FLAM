@@ -140,6 +140,9 @@ class FLAMWidget(QtGui.QWidget):
         self.infoPane.updateProjectName(self.showSelectionPane.getCurrentShow().getName())
         self.infoPane.updateShotName(self.showSelectionPane.getCurrentShot().getName())
 
+        #Adds control based on show/shot changes
+        self.showSelectionPane.addInfoPane(self.infoPane)
+
 
         #Top Right Pane
         self.assetFrame = AssetViewerFrame()
@@ -306,6 +309,10 @@ class ShowSelectionPanel(QtGui.QFrame):
 
         self.currentShow = None
         self.currentShot = None
+        self.infoPane = None
+
+        self.currentShotList = []
+        self.showList = db.getAllShows()
 
 
         self.buildFrame()
@@ -343,20 +350,20 @@ class ShowSelectionPanel(QtGui.QFrame):
         for s in showList:
             self.projectCombo.addItem(s.getName())
         self.projectCombo.setStyleSheet(css.showComboBoxCSS)
-        
+        self.projectCombo.currentIndexChanged.connect(self.showComboChanged)
 
         #NOT THE BEST WAY TO DO THIS
         #WILL HAVE TO ELIMINATE THE POSSIBILITY OF DUPLICATES
         curShowName = self.projectCombo.currentText()
-
         #Saving Show object to be easily tangible
-        print "cur show db call: ", db.getShow(curShowName)
         self.setCurrentShow(db.getShow(curShowName))
 
-        curShowId = self.getCurrentShow().getShowID()
-        curShotList = db.getAllShots(curShowId)
 
-    
+        #prep to create shot list
+        curShowId = self.getCurrentShow().getShowID()
+        self.setCurrentShotList(db.getAllShots(curShowId))
+        curShotList = self.getCurrentShotList()
+
         ####SHOT LIST FOR CURRENT PROJECT
         self.shotCombo = QtGui.QComboBox(self)
 
@@ -364,7 +371,7 @@ class ShowSelectionPanel(QtGui.QFrame):
             for s in curShotList:
                 self.shotCombo.addItem(s.getName())
         self.shotCombo.setStyleSheet(css.showComboBoxCSS)
-
+        self.shotCombo.currentIndexChanged.connect(self.shotComboChanged)
 
         curShotName = self.shotCombo.currentText()
         for s in curShotList:
@@ -382,10 +389,14 @@ class ShowSelectionPanel(QtGui.QFrame):
         self.projectComboFrame.setLayout(self.projectComboFrameLayout)
         self.shotComboFrame.setLayout(self.shotComboFrameLayout)
 
+        self.applyButton = QtGui.QPushButton("Apply")
+        self.applyButton.clicked.connect(self.updateInfoPane)
+
     def buildLayout(self):
         self.shot_info_layout = QtGui.QVBoxLayout()
         self.shot_info_layout.addWidget(self.projectComboFrame)
         self.shot_info_layout.addWidget(self.shotComboFrame)
+        self.shot_info_layout.addWidget(self.applyButton)
         self.shot_info_layout.addStretch(0)
         self.setLayout(self.shot_info_layout)
 
@@ -397,13 +408,60 @@ class ShowSelectionPanel(QtGui.QFrame):
         #print "Getting current shot"
         return self.currentShot
 
+    def getCurrentShotList(self):
+        #print "Getting current shot"
+        return self.currentShotList
+
+    def getShowList(self):
+        return self.showList
+
+    def _setShowList(self, newList):
+        self.showList = newList
+    
+    def setCurrentShotList(self, shotList):
+        #print "Getting current shot"
+        self.currentShotList = shotList
+
     def setCurrentShow(self, show):
-        print "setting show to %s" % show
         self.currentShow = show
-        print "shot updated to %s" % self.getCurrentShow()
 
     def setCurrentShot(self, shot):
         self.currentShot = shot
+
+    def showComboChanged(self):
+        print "SHOW CHANGED. UPDATING SHOTS."
+        curShowName = self.projectCombo.currentText()
+        if not self.getCurrentShow().getName() == curShowName:
+            self.setCurrentShow(db.getShow(curShowName))
+
+            #Rebuilding shot list
+            curShowId = self.getCurrentShow().getShowID()
+            self.setCurrentShotList(db.getAllShots(curShowId))
+            curShotList = self.getCurrentShotList()
+            self.shotCombo.clear()
+            for s in curShotList:
+                self.shotCombo.addItem(s.getName())
+
+            curShotName = self.shotCombo.currentText()
+            for s in curShotList:
+                if s.getName() == curShotName:
+                    self.setCurrentShot(s)
+
+
+    def shotComboChanged(self):
+        curShotName = self.shotCombo.currentText()
+        for s in self.getCurrentShotList():
+            if s.getName() == curShotName:
+                self.setCurrentShot(s)
+
+
+    def addInfoPane(self, pane):
+        self.infoPane = pane
+
+    def updateInfoPane(self):
+        self.infoPane.updateProjectName(self.getCurrentShow().getName())
+        self.infoPane.updateShotName(self.getCurrentShot().getName())
+
 
 
 class ProjectInfoLabel(QtGui.QHBoxLayout):
@@ -457,6 +515,7 @@ class IngestPanel(QtGui.QWidget):
 
         self.buildIngestPane()
 
+    #From qtDesigner
     def buildIngestPane(self):
 
         self.injestTab = QtGui.QWidget()
