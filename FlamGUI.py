@@ -72,10 +72,17 @@ class FlamGui(QtGui.QMainWindow):
         self.addMainGui()
 
     def addMainGui(self):
+
         self.flam_widget = FLAMWidget(self)
+        self.ingest_widget = IngestPanel()
+
+        self.tabWidget = QtGui.QTabWidget()
+        self.tabWidget.addTab(self.flam_widget, "Project View")
+        self.tabWidget.addTab(self.ingest_widget, "Ingest")
+        self.tabWidget.setStyleSheet(css.mainTabCSS)
         _widget = QtGui.QWidget()
         _layout = QtGui.QVBoxLayout(_widget)
-        _layout.addWidget(self.flam_widget)
+        _layout.addWidget(self.tabWidget)
         self.setCentralWidget(_widget)
  
 
@@ -87,9 +94,6 @@ class FlamGui(QtGui.QMainWindow):
 
 
     def openProject(self):
-
-
-
         QtGui.QMessageBox.question(self, 'Placeholder',
             "This is a placeholder button.", QtGui.QMessageBox.Ok )
 
@@ -129,9 +133,12 @@ class FLAMWidget(QtGui.QWidget):
         
         #Top Left Show Selection Panel
         self.showSelectionPane = ShowSelectionPanel()
+        print "CUR SHOW FROM SHOW SELECTION PANE: %s" % self.showSelectionPane.getCurrentShow()
 
         #Top Left Pane
         self.infoPane = ProjectInfoFrame()
+        self.infoPane.updateProjectName(self.showSelectionPane.getCurrentShow().getName())
+        self.infoPane.updateShotName(self.showSelectionPane.getCurrentShot().getName())
 
 
         #Top Right Pane
@@ -287,24 +294,26 @@ class ProjectInfoFrame(QtGui.QFrame):
         self.shot_info_layout.addStretch(0)
         self.setLayout(self.shot_info_layout)
 
+    def updateProjectName(self, name):
+        self.projectNameLabel.setContent(name)
+
+    def updateShotName(self, name):
+        self.shotNameLabel.setContent(name)
+
 class ShowSelectionPanel(QtGui.QFrame):
     def __init__(self, parent = None):
         super(ShowSelectionPanel, self).__init__(parent)
 
-        ###
-        ###TEMP HARD CODED
-        self.labelTextColor = "rgb(150, 150, 150)"
-        self.infoTextColor = "rgb(220, 220, 220)"
+        self.currentShow = None
+        self.currentShot = None
 
-        self.projectName = "Terminator 20 Billion"
-        self.shotName = "Serious Test Shot"
-        self.shotFrameRange = "1-57"
-        ###
-        ###
 
         self.buildFrame()
         self.buildComboBoxes()
         self.buildLayout()
+
+
+
 
 
     def buildFrame(self):
@@ -320,16 +329,33 @@ class ShowSelectionPanel(QtGui.QFrame):
         #print "INIT SHOW COMBO BOXES."
         showList = db.getAllShows()
         
+        self.projectComboFrame = QtGui.QFrame()
+        self.shotComboFrame = QtGui.QFrame()
+
+        self.projectComboLabel = QtGui.QLabel("Project:")
+        self.shotComboLabel = QtGui.QLabel("Shot:")
+
+        self.projectComboFrameLayout = QtGui.QHBoxLayout()
+        self.shotComboFrameLayout = QtGui.QHBoxLayout()
+
+
         self.projectCombo = QtGui.QComboBox(self)
         for s in showList:
             self.projectCombo.addItem(s.getName())
         self.projectCombo.setStyleSheet(css.showComboBoxCSS)
+        
 
         #NOT THE BEST WAY TO DO THIS
         #WILL HAVE TO ELIMINATE THE POSSIBILITY OF DUPLICATES
         curShowName = self.projectCombo.currentText()
-        curShowId = db.getShow(curShowName).getShowID()
+
+        #Saving Show object to be easily tangible
+        print "cur show db call: ", db.getShow(curShowName)
+        self.setCurrentShow(db.getShow(curShowName))
+
+        curShowId = self.getCurrentShow().getShowID()
         curShotList = db.getAllShots(curShowId)
+
     
         ####SHOT LIST FOR CURRENT PROJECT
         self.shotCombo = QtGui.QComboBox(self)
@@ -339,17 +365,45 @@ class ShowSelectionPanel(QtGui.QFrame):
                 self.shotCombo.addItem(s.getName())
         self.shotCombo.setStyleSheet(css.showComboBoxCSS)
 
+
+        curShotName = self.shotCombo.currentText()
+        for s in curShotList:
+            if s.getName() == curShotName:
+                self.setCurrentShot(s)
+
         #print "FINISHED COMBO BOX INIT."
 
+        self.projectComboFrameLayout.addWidget(self.projectComboLabel)
+        self.projectComboFrameLayout.addWidget(self.projectCombo)
 
+        self.shotComboFrameLayout.addWidget(self.shotComboLabel)
+        self.shotComboFrameLayout.addWidget(self.shotCombo)
 
+        self.projectComboFrame.setLayout(self.projectComboFrameLayout)
+        self.shotComboFrame.setLayout(self.shotComboFrameLayout)
 
     def buildLayout(self):
         self.shot_info_layout = QtGui.QVBoxLayout()
-        self.shot_info_layout.addWidget(self.projectCombo)
-        self.shot_info_layout.addWidget(self.shotCombo)
+        self.shot_info_layout.addWidget(self.projectComboFrame)
+        self.shot_info_layout.addWidget(self.shotComboFrame)
         self.shot_info_layout.addStretch(0)
         self.setLayout(self.shot_info_layout)
+
+    def getCurrentShow(self):
+        #print "Getting current show"
+        return self.currentShow
+
+    def getCurrentShot(self):
+        #print "Getting current shot"
+        return self.currentShot
+
+    def setCurrentShow(self, show):
+        print "setting show to %s" % show
+        self.currentShow = show
+        print "shot updated to %s" % self.getCurrentShow()
+
+    def setCurrentShot(self, shot):
+        self.currentShot = shot
 
 
 class ProjectInfoLabel(QtGui.QHBoxLayout):
@@ -396,6 +450,129 @@ class ProjectInfoLabel(QtGui.QHBoxLayout):
     def updateGui(self):
         self.titleLabel.setText(self.title)
         self.contentLabel.setText(self.content)
+
+class IngestPanel(QtGui.QWidget):
+    def __init__(self):
+        super(IngestPanel, self).__init__()
+
+        self.buildIngestPane()
+
+    def buildIngestPane(self):
+
+        self.injestTab = QtGui.QWidget()
+        self.setObjectName("injestTab")
+
+        self.horizontalLayout_4 = QtGui.QHBoxLayout(self)
+        self.horizontalLayout_4.setObjectName("horizontalLayout_4")
+        self.ingestViewMainFrame = QtGui.QFrame(self)
+        self.ingestViewMainFrame.setFrameShape(QtGui.QFrame.StyledPanel)
+        self.ingestViewMainFrame.setFrameShadow(QtGui.QFrame.Raised)
+        self.ingestViewMainFrame.setObjectName("ingestViewMainFrame")
+
+        self.horizontalLayout_3 = QtGui.QHBoxLayout(self.ingestViewMainFrame)
+        self.horizontalLayout_3.setObjectName("horizontalLayout_3")
+       
+        self.frame_7 = QtGui.QFrame(self.ingestViewMainFrame)
+        self.frame_7.setFrameShape(QtGui.QFrame.StyledPanel)
+        self.frame_7.setFrameShadow(QtGui.QFrame.Raised)
+        self.frame_7.setObjectName("frame_7")
+        
+        self.verticalLayout_3 = QtGui.QVBoxLayout(self.frame_7)
+        self.verticalLayout_3.setObjectName("verticalLayout_3")
+        
+        self.ingestModeComboFrame = QtGui.QFrame(self.frame_7)
+        self.ingestModeComboFrame.setFrameShape(QtGui.QFrame.StyledPanel)
+        self.ingestModeComboFrame.setFrameShadow(QtGui.QFrame.Raised)
+        self.ingestModeComboFrame.setObjectName("ingestModeComboFrame")
+        
+        self.horizontalLayout_5 = QtGui.QHBoxLayout(self.ingestModeComboFrame)
+        self.horizontalLayout_5.setObjectName("horizontalLayout_5")
+        
+        self.ingestModeLabel = QtGui.QLabel( "Ingest Mode:", self.ingestModeComboFrame)
+        self.ingestModeLabel.setObjectName("ingestModeLabel")
+        
+        self.horizontalLayout_5.addWidget(self.ingestModeLabel)
+        
+        self.ingestMode = QtGui.QComboBox(self.ingestModeComboFrame)
+        self.ingestMode.setObjectName("ingestMode")
+        self.ingestMode.addItem("Show")
+        self.ingestMode.addItem("Shot")
+        self.ingestMode.addItem("Asset")
+        
+        self.horizontalLayout_5.addWidget(self.ingestMode)
+        self.verticalLayout_3.addWidget(self.ingestModeComboFrame)
+        self.horizontalLayout_3.addWidget(self.frame_7)
+        
+        self.ingestInputFrame = QtGui.QFrame(self.ingestViewMainFrame)
+        self.ingestInputFrame.setFrameShape(QtGui.QFrame.StyledPanel)
+        self.ingestInputFrame.setFrameShadow(QtGui.QFrame.Raised)
+        self.ingestInputFrame.setObjectName("ingestInputFrame")
+        
+        self.verticalLayout_4 = QtGui.QVBoxLayout(self.ingestInputFrame)
+        self.verticalLayout_4.setObjectName("verticalLayout_4")
+        
+        self.ingestNameLineEditFrame = QtGui.QFrame(self.ingestInputFrame)
+        self.ingestNameLineEditFrame.setFrameShape(QtGui.QFrame.StyledPanel)
+        self.ingestNameLineEditFrame.setFrameShadow(QtGui.QFrame.Raised)
+        self.ingestNameLineEditFrame.setObjectName("ingestNameLineEditFrame")
+        
+        self.horizontalLayout_8 = QtGui.QHBoxLayout(self.ingestNameLineEditFrame)
+        self.horizontalLayout_8.setObjectName("horizontalLayout_8")
+        
+        self.nameLabel = QtGui.QLabel("Name:", self.ingestNameLineEditFrame)
+        self.nameLabel.setObjectName("nameLabel")
+        
+        self.horizontalLayout_8.addWidget(self.nameLabel)
+        
+        self.nameLineEdit = QtGui.QLineEdit(self.ingestNameLineEditFrame)
+        self.nameLineEdit.setFrame(True)
+        self.nameLineEdit.setDragEnabled(False)
+        self.nameLineEdit.setReadOnly(False)
+        self.nameLineEdit.setObjectName("nameLineEdit")
+        
+        self.horizontalLayout_8.addWidget(self.nameLineEdit)
+        self.verticalLayout_4.addWidget(self.ingestNameLineEditFrame)
+        
+        self.ingestPathLineEditFrame = QtGui.QFrame(self.ingestInputFrame)
+        self.ingestPathLineEditFrame.setFrameShape(QtGui.QFrame.StyledPanel)
+        self.ingestPathLineEditFrame.setFrameShadow(QtGui.QFrame.Raised)
+        self.ingestPathLineEditFrame.setObjectName("ingestPathLineEditFrame")
+        
+        self.horizontalLayout_6 = QtGui.QHBoxLayout(self.ingestPathLineEditFrame)
+        self.horizontalLayout_6.setObjectName("horizontalLayout_6")
+        
+        self.filePathLabel = QtGui.QLabel("Location:", self.ingestPathLineEditFrame)
+        self.filePathLabel.setObjectName("filePathLabel")
+        
+        self.horizontalLayout_6.addWidget(self.filePathLabel)
+        
+        self.filePathLineEdit = QtGui.QLineEdit(self.ingestPathLineEditFrame)
+        self.filePathLineEdit.setAutoFillBackground(False)
+        self.filePathLineEdit.setObjectName("filePathLineEdit")
+        self.filePathLineEdit.setPlaceholderText("Click browse to select a path...")
+        self.filePathLineEdit.setReadOnly(True)
+        
+        self.horizontalLayout_6.addWidget(self.filePathLineEdit)
+        
+        self.browseButton = QtGui.QPushButton(self.ingestPathLineEditFrame)
+        self.browseButton.setText("Browse...")
+        self.browseButton.setAutoDefault(False)
+        self.browseButton.setDefault(True)
+        self.browseButton.setFlat(False)
+        self.browseButton.setObjectName("browseButton")
+        self.browseButton.clicked.connect(self.browseFilePath)
+        
+        self.horizontalLayout_6.addWidget(self.browseButton)
+        self.verticalLayout_4.addWidget(self.ingestPathLineEditFrame)
+        self.horizontalLayout_3.addWidget(self.ingestInputFrame)
+        self.horizontalLayout_4.addWidget(self.ingestViewMainFrame)
+
+
+    def browseFilePath(self):
+        print "IT FUCKING WORKED"
+        folderName = QtGui.QFileDialog.getExistingDirectory(None,'Open File', '/')
+        print folderName
+        self.filePathLineEdit.setText(folderName)
 
 
 
