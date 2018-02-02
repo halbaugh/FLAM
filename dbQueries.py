@@ -15,8 +15,14 @@ def makeSession():
     _session = DBSession()
     
     return _session
-
-
+'''
+def getShot(shotId, showId):
+    print "DBQUERIES<-getShow(shotName)"
+    session = makeSession()
+    show = session.query(FlamShot).filter(FlamShot.id == shotId).join.scalar()
+    session.close()
+    return show
+'''
 
 def getAllShots(showId):
     print "DBQUERIES<-getAllShots(showId)"

@@ -127,6 +127,9 @@ class FlamShot(Base):
     def getName(self):
         return self.name
 
+    def getShow_id(self):
+        return self.show_id
+
 
 
     def __str__(self):
