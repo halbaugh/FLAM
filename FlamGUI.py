@@ -334,7 +334,7 @@ class ShowSelectionPanel(QtGui.QFrame):
 
         ####PROJECT LIST COMBO BOX
         #print "INIT SHOW COMBO BOXES."
-        showList = db.getAllShows()
+        showList = self.getShowList()
         
         self.projectComboFrame = QtGui.QFrame()
         self.shotComboFrame = QtGui.QFrame()
