@@ -15,7 +15,7 @@ splitterCSS = """
             }
 
             QSplitter::handle:pressed {
-                image: url(images/splitter_pressed.png);
+                image: "images/down_arrow.png";
             }
             """
 
@@ -111,3 +111,40 @@ showComboBoxCSS = """
                     selection-background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #111, stop: 1 #333);
                 }
                 """
+
+
+
+mainTabCSS = """
+            QTabWidget::pane { /* The tab widget frame */
+            border-top: 2px solid rgb(55,55,55);
+            }
+
+            QTabWidget::tab-bar {
+                left: 5px; /* move to the right by 5px */
+            }
+
+            /* Style the tab using the tab sub-control. Note that
+                it reads QTabBar _not_ QTabWidget */
+            QTabBar::tab {
+                background: rgb(75,75,75);
+                border: 2px solid rgb(60,60,60);
+                border-bottom-color: rgb(150,150,150); /* same as the pane color */
+                border-top-left-radius: 4px;
+                border-top-right-radius: 4px;
+                min-width: 8ex;
+                padding: 2px;
+            }
+
+            QTabBar::tab:selected, QTabBar::tab:hover {
+                background: rgb(100,100,100);
+            }
+
+            QTabBar::tab:selected {
+                border-color: rgb(150,150,150);
+                border-bottom-color: rgb(100,100,100);
+            }
+
+            QTabBar::tab:!selected {
+                margin-top: 2px; /* make non-selected tabs look smaller */
+            }
+            """
