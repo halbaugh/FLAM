@@ -14,38 +14,6 @@ Base = declarative_base()
  
 DATABASE_LOCATION = 'sqlite:///testFLAM.db'
 
-class DataBaseSession(object):
-    def __init__(self):
-        try:
-            engine = create_engine(DATABASE_LOCATION)
-            Base.metadata.bind = engine
-            DBSession = sessionmaker(bind=engine)
-            self.session = DBSession()
-
-        except Exception, e:
-            print "Could not init dbSession.\nError: %s" % e
-
-
-    def getSession(self):
-        return self.session
-
-
-    def commit(self):
-        self.session.commit()
-
-
-    def delete(self, tmp):
-        self.session.delete(tmp)
-
-
-    def add(self, tmp):
-        self.session.add(tmp)
-
-
-    def kill(self):
-        self.session.close()
-
-
 class FlamShow(Base):
     ####DB TABLES####
     __tablename__ = 'show'

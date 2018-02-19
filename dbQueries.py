@@ -48,6 +48,20 @@ def getAllShows():
     return tempShots
 
 
+def addShow(showName):
+    session = makeSession()
+    FlamShow(name=showName)
+    session.add(showName)
+    session.commit()
+    session.close()
+
+def addShot():
+    pass
+
+def addAsset():
+    pass
+
+
 
 
 ###
@@ -61,7 +75,7 @@ def addShotToShow(shotName):
     ###########################
 
     print "\n\n"
-    session = makeSession(dbPath)
+    session = makeSession()
     #curShowName = getCurShow() #Get show currently displayed in GUI
     curShowName = "AVCO"
     curShow = session.query(FlamShow).filter(FlamShow.name == curShowName).scalar()
@@ -69,7 +83,7 @@ def addShotToShow(shotName):
     if curShow:
         print "Found Show: \'%s\'." % curShow.getName()
         print "Adding new shot \'%s\'." % shotName
-        #curShow.createShot(session, shotName)
+        curShow.createShot(session, shotName)
     else:
         print "Did not find %s." % curShow
 

@@ -12,6 +12,8 @@ import QTCSS as css
 import dbQueries as db
 from dbQueries import DATABASE_LOCATION
 
+import folderStructure
+
 print "FlamGui - DBLOC - %s" % DATABASE_LOCATION
 
 
@@ -115,7 +117,7 @@ class FlamGui(QtGui.QMainWindow):
             event.accept()
         else:
             event.ignore()    
-        
+  
 #LAYOUTS FOR WINDOW
 class FLAMWidget(QtGui.QWidget):
 
@@ -286,14 +288,14 @@ class ProjectInfoFrame(QtGui.QFrame):
 
         self.projectNameLabel = ProjectInfoLabel('Project Name:', self.projectName, self.labelTextColor, self.infoTextColor)
         self.shotNameLabel = ProjectInfoLabel('Shot Name:', self.shotName, self.labelTextColor, self.infoTextColor)
-        self.shotFrameRangeLabel = ProjectInfoLabel('Frame Range:', self.shotFrameRange, self.labelTextColor, self.infoTextColor)
+        #self.shotFrameRangeLabel = ProjectInfoLabel('Frame Range:', self.shotFrameRange, self.labelTextColor, self.infoTextColor)
 
 
     def buildLayout(self):
         self.shot_info_layout = QtGui.QVBoxLayout()
         self.shot_info_layout.addLayout(self.projectNameLabel)
         self.shot_info_layout.addLayout(self.shotNameLabel)
-        self.shot_info_layout.addLayout(self.shotFrameRangeLabel)
+        #self.shot_info_layout.addLayout(self.shotFrameRangeLabel)
         self.shot_info_layout.addStretch(0)
         self.setLayout(self.shot_info_layout)
 
@@ -302,6 +304,7 @@ class ProjectInfoFrame(QtGui.QFrame):
 
     def updateShotName(self, name):
         self.shotNameLabel.setContent(name)
+
 
 class ShowSelectionPanel(QtGui.QFrame):
     def __init__(self, parent = None):
@@ -463,7 +466,6 @@ class ShowSelectionPanel(QtGui.QFrame):
         self.infoPane.updateShotName(self.getCurrentShot().getName())
 
 
-
 class ProjectInfoLabel(QtGui.QHBoxLayout):
     def __init__(self, title, content, titleColor, contentColor):
         super(ProjectInfoLabel, self).__init__()
@@ -509,6 +511,7 @@ class ProjectInfoLabel(QtGui.QHBoxLayout):
         self.titleLabel.setText(self.title)
         self.contentLabel.setText(self.content)
 
+
 class IngestPanel(QtGui.QWidget):
     def __init__(self):
         super(IngestPanel, self).__init__()
@@ -518,11 +521,12 @@ class IngestPanel(QtGui.QWidget):
     #From qtDesigner
     def buildIngestPane(self):
 
-        self.injestTab = QtGui.QWidget()
+        self.injestTab = QtGui.QWidget()  
         self.setObjectName("injestTab")
 
-        self.horizontalLayout_4 = QtGui.QHBoxLayout(self)
-        self.horizontalLayout_4.setObjectName("horizontalLayout_4")
+        self.mainContainerHlayout = QtGui.QHBoxLayout(self)
+        self.mainContainerHlayout.setGeometry(QtCore.QRect(0, 0, 500, 500))
+        self.mainContainerHlayout.setObjectName("mainContainerHlayout")
         self.ingestViewMainFrame = QtGui.QFrame(self)
         self.ingestViewMainFrame.setFrameShape(QtGui.QFrame.StyledPanel)
         self.ingestViewMainFrame.setFrameShadow(QtGui.QFrame.Raised)
@@ -552,14 +556,15 @@ class IngestPanel(QtGui.QWidget):
         
         self.horizontalLayout_5.addWidget(self.ingestModeLabel)
         
-        self.ingestMode = QtGui.QComboBox(self.ingestModeComboFrame)
-        self.ingestMode.setObjectName("ingestMode")
-        self.ingestMode.addItem("Show")
-        self.ingestMode.addItem("Shot")
-        self.ingestMode.addItem("Asset")
+        self.ingestModeComboBox = QtGui.QComboBox(self.ingestModeComboFrame)
+        self.ingestModeComboBox.setObjectName("ingestMode")
+        self.ingestModeComboBox.addItem("Show")
+        self.ingestModeComboBox.addItem("Shot")
+        self.ingestModeComboBox.addItem("Asset")
         
-        self.horizontalLayout_5.addWidget(self.ingestMode)
+        self.horizontalLayout_5.addWidget(self.ingestModeComboBox)
         self.verticalLayout_3.addWidget(self.ingestModeComboFrame)
+        self.verticalLayout_3.addStretch(1)
         self.horizontalLayout_3.addWidget(self.frame_7)
         
         self.ingestInputFrame = QtGui.QFrame(self.ingestViewMainFrame)
@@ -575,21 +580,24 @@ class IngestPanel(QtGui.QWidget):
         self.ingestNameLineEditFrame.setFrameShadow(QtGui.QFrame.Raised)
         self.ingestNameLineEditFrame.setObjectName("ingestNameLineEditFrame")
         
-        self.horizontalLayout_8 = QtGui.QHBoxLayout(self.ingestNameLineEditFrame)
-        self.horizontalLayout_8.setObjectName("horizontalLayout_8")
+        self.nameLineEditHlayout = QtGui.QHBoxLayout(self.ingestNameLineEditFrame)
+        self.nameLineEditHlayout.setObjectName("nameLineEditHlayout")
         
         self.nameLabel = QtGui.QLabel("Name:", self.ingestNameLineEditFrame)
         self.nameLabel.setObjectName("nameLabel")
         
-        self.horizontalLayout_8.addWidget(self.nameLabel)
+        self.nameLineEditHlayout.addWidget(self.nameLabel)
         
         self.nameLineEdit = QtGui.QLineEdit(self.ingestNameLineEditFrame)
+        self.nameLineEdit.setFixedWidth(400)
         self.nameLineEdit.setFrame(True)
         self.nameLineEdit.setDragEnabled(False)
         self.nameLineEdit.setReadOnly(False)
         self.nameLineEdit.setObjectName("nameLineEdit")
         
-        self.horizontalLayout_8.addWidget(self.nameLineEdit)
+        self.nameLineEditHlayout.addWidget(self.nameLineEdit)
+        self.nameLineEditHlayout.addStretch(1)
+
         self.verticalLayout_4.addWidget(self.ingestNameLineEditFrame)
         
         self.ingestPathLineEditFrame = QtGui.QFrame(self.ingestInputFrame)
@@ -597,21 +605,22 @@ class IngestPanel(QtGui.QWidget):
         self.ingestPathLineEditFrame.setFrameShadow(QtGui.QFrame.Raised)
         self.ingestPathLineEditFrame.setObjectName("ingestPathLineEditFrame")
         
-        self.horizontalLayout_6 = QtGui.QHBoxLayout(self.ingestPathLineEditFrame)
-        self.horizontalLayout_6.setObjectName("horizontalLayout_6")
+        self.pathLineEditHlayout = QtGui.QHBoxLayout(self.ingestPathLineEditFrame)
+        self.pathLineEditHlayout.setObjectName("pathLineEditHlayout")
         
         self.filePathLabel = QtGui.QLabel("Location:", self.ingestPathLineEditFrame)
         self.filePathLabel.setObjectName("filePathLabel")
         
-        self.horizontalLayout_6.addWidget(self.filePathLabel)
+        self.pathLineEditHlayout.addWidget(self.filePathLabel)
         
         self.filePathLineEdit = QtGui.QLineEdit(self.ingestPathLineEditFrame)
+        self.filePathLineEdit.setFixedWidth(400)
         self.filePathLineEdit.setAutoFillBackground(False)
         self.filePathLineEdit.setObjectName("filePathLineEdit")
         self.filePathLineEdit.setPlaceholderText("Click browse to select a path...")
         self.filePathLineEdit.setReadOnly(True)
         
-        self.horizontalLayout_6.addWidget(self.filePathLineEdit)
+        self.pathLineEditHlayout.addWidget(self.filePathLineEdit)
         
         self.browseButton = QtGui.QPushButton(self.ingestPathLineEditFrame)
         self.browseButton.setText("Browse...")
@@ -621,10 +630,20 @@ class IngestPanel(QtGui.QWidget):
         self.browseButton.setObjectName("browseButton")
         self.browseButton.clicked.connect(self.browseFilePath)
         
-        self.horizontalLayout_6.addWidget(self.browseButton)
+        self.pathLineEditHlayout.addWidget(self.browseButton)
+        self.pathLineEditHlayout.addStretch(1)
+
+        self.ingestSubmitButton = QtGui.QPushButton(self.ingestPathLineEditFrame)
+        self.ingestSubmitButton.setText("Submit...")
+        self.ingestSubmitButton.setFixedWidth(100)
+        self.ingestSubmitButton.clicked.connect(self.ingestCreate)
+
         self.verticalLayout_4.addWidget(self.ingestPathLineEditFrame)
+        self.verticalLayout_4.addWidget(self.ingestSubmitButton)
+        self.verticalLayout_4.addStretch(1)
+
         self.horizontalLayout_3.addWidget(self.ingestInputFrame)
-        self.horizontalLayout_4.addWidget(self.ingestViewMainFrame)
+        self.mainContainerHlayout.addWidget(self.ingestViewMainFrame)
 
 
     def browseFilePath(self):
@@ -633,7 +652,35 @@ class IngestPanel(QtGui.QWidget):
         print folderName
         self.filePathLineEdit.setText(folderName)
 
+    def ingestCreate(self):
+        cbText = self.ingestModeComboBox.currentText().lower()
+        if "show" in cbText:
+            self.createShow()
 
+        elif "shot" in cbText:
+            self.createShot()
+
+        elif "asset" in cbText:
+            pass
+
+    def createShow(self):
+        print "Show created."
+
+    def createShot(self):
+        path = self.filePathLineEdit.getText()
+        show = path.split("\\")[-1]
+        shotName = self.nameLineEdit.getText()
+        #DB CALL - NEEDS PATHS TO BE ADDED TO DB
+        #db.addShotToShow(show,shotName)
+        #create folder strucuture here
+
+        print "Shot created."
+
+    def createAsset(self):
+        print "Asset created."
+
+    def ingestSubmit(self):
+        pass
 
 def main():
     
