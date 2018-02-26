@@ -516,6 +516,11 @@ class IngestPanel(QtGui.QWidget):
     def __init__(self):
         super(IngestPanel, self).__init__()
 
+        ###TEMP CALL##################################
+        ###NEEDS TO MORE EFFICIENTLY CALL DB FOR SHOWS
+        ###If already called, should not call again. 
+        self.showList = db.getAllShows()
+
         self.buildIngestPane()
 
     #From qtDesigner
@@ -548,13 +553,13 @@ class IngestPanel(QtGui.QWidget):
         self.ingestModeComboFrame.setFrameShadow(QtGui.QFrame.Raised)
         self.ingestModeComboFrame.setObjectName("ingestModeComboFrame")
         
+        self.showMenu_vertLayout = QtGui.QVBoxLayout()
+
         self.horizontalLayout_5 = QtGui.QHBoxLayout(self.ingestModeComboFrame)
         self.horizontalLayout_5.setObjectName("horizontalLayout_5")
         
-        self.ingestModeLabel = QtGui.QLabel( "Ingest Mode:", self.ingestModeComboFrame)
+        self.ingestModeLabel = QtGui.QLabel( "Ingest Mode:")
         self.ingestModeLabel.setObjectName("ingestModeLabel")
-        
-        self.horizontalLayout_5.addWidget(self.ingestModeLabel)
         
         self.ingestModeComboBox = QtGui.QComboBox(self.ingestModeComboFrame)
         self.ingestModeComboBox.setObjectName("ingestMode")
@@ -562,7 +567,32 @@ class IngestPanel(QtGui.QWidget):
         self.ingestModeComboBox.addItem("Shot")
         self.ingestModeComboBox.addItem("Asset")
         
+        self.horizontalLayout_5.addWidget(self.ingestModeLabel)
         self.horizontalLayout_5.addWidget(self.ingestModeComboBox)
+
+        self.shotModeComboFrame = QtGui.QFrame(self.frame_7)
+        self.shotModeComboFrame.setFrameShape(QtGui.QFrame.StyledPanel)
+        self.shotModeComboFrame.setFrameShadow(QtGui.QFrame.Raised)
+        self.shotModeComboFrame.setObjectName("shotModeComboFrame")
+
+        self.showSelect_horizontalLayout = QtGui.QHBoxLayout(self.shotModeComboFrame)
+        self.showSelect_horizontalLayout.setObjectName("showSelect_horizontalLayout")
+
+        self.showSelectLabel = QtGui.QLabel( "Show:",)
+        self.showSelectLabel.setObjectName("showSelectLabel")
+        
+        self.showSelectComboBox = QtGui.QComboBox()
+        self.showSelectComboBox.setObjectName("ingestMode")
+
+        for s in self.showList:
+            self.showSelectComboBox.addItem(s.getName())
+
+        self.showSelect_horizontalLayout.addWidget(self.showSelectLabel)
+        self.showSelect_horizontalLayout.addWidget(self.showSelectComboBox)
+
+        #self.shotModeComboFrame.addWidget()
+
+        self.verticalLayout_3.addWidget(self.shotModeComboFrame)
         self.verticalLayout_3.addWidget(self.ingestModeComboFrame)
         self.verticalLayout_3.addStretch(1)
         self.horizontalLayout_3.addWidget(self.frame_7)
@@ -661,19 +691,24 @@ class IngestPanel(QtGui.QWidget):
             self.createShot()
 
         elif "asset" in cbText:
-            pass
+            self.createAsset()
+
 
     def createShow(self):
         print "Show created."
 
+
     def createShot(self):
-        path = self.filePathLineEdit.getText()
-        show = path.split("\\")[-1]
-        shotName = self.nameLineEdit.getText()
+        path = self.filePathLineEdit.text()
+        show = self.getCurShow()
+        shotName = self.nameLineEdit.text()
         #DB CALL - NEEDS PATHS TO BE ADDED TO DB
         #db.addShotToShow(show,shotName)
         #create folder strucuture here
 
+        print "PATH: %s" % path
+        print "SHOW: %s" % show
+        print "NAME: %s" % shotName
         print "Shot created."
 
     def createAsset(self):
@@ -681,6 +716,9 @@ class IngestPanel(QtGui.QWidget):
 
     def ingestSubmit(self):
         pass
+
+    def getCurShow(self):
+        return self.showSelectComboBox.currentText().upper()
 
 def main():
     
