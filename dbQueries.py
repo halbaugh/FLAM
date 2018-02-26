@@ -65,7 +65,7 @@ def addAsset():
 
 
 ###
-def addShotToShow(shotName):
+def addShotToShow(showName, shotName):
     ###########################
     ###########################
     #########INCOMPLETE########
@@ -77,13 +77,14 @@ def addShotToShow(shotName):
     print "\n\n"
     session = makeSession()
     #curShowName = getCurShow() #Get show currently displayed in GUI
-    curShowName = "AVCO"
+    curShowName = showName
     curShow = session.query(FlamShow).filter(FlamShow.name == curShowName).scalar()
 
     if curShow:
         print "Found Show: \'%s\'." % curShow.getName()
         print "Adding new shot \'%s\'." % shotName
         curShow.createShot(session, shotName)
+        #needs to create default folder structure
     else:
         print "Did not find %s." % curShow
 

@@ -30,7 +30,7 @@ class FlamShow(Base):
         self.shotList = []
     '''
 
-
+    #must pass in a session
     def createShot(self, mainSession, tmp):
         #print tmp
         session = mainSession
