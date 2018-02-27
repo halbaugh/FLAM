@@ -696,6 +696,7 @@ class IngestPanel(QtGui.QWidget):
 
     def createShow(self):
         print "Show created."
+        print "Test Change"
 
 
     def createShot(self):
