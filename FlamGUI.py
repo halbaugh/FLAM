@@ -6,6 +6,9 @@
 import sys
 from PySide import QtGui
 from PySide import QtCore
+from ConfigParser import SafeConfigParser
+
+from installer import FlamInstall
 
 import QTCSS as css
 
@@ -24,6 +27,13 @@ class FlamGui(QtGui.QMainWindow):
 
         self.appStyle = '{background-color: rgb(60, 60, 60);}'
         self.setStyleSheet("QMainWindow" + self.appStyle)
+        try:
+            myFlamInstall = FlamInstall()
+            myFlamInstall.install()
+
+        except Exception, e:
+            print "Error installing.  Double check..."
+            print "Error: %s" % e
         self.initUI()
         
 
@@ -116,7 +126,10 @@ class FlamGui(QtGui.QMainWindow):
         if reply == QtGui.QMessageBox.Yes:
             event.accept()
         else:
-            event.ignore()    
+            event.ignore()
+
+    def getSettings(self):
+        pass    
   
 #LAYOUTS FOR WINDOW
 class FLAMWidget(QtGui.QWidget):
@@ -720,6 +733,19 @@ class IngestPanel(QtGui.QWidget):
 
     def getCurShow(self):
         return self.showSelectComboBox.currentText().upper()
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 def main():
     
