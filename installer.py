@@ -88,6 +88,23 @@ class FlamInstall(object):
     def getSettingsFile(self):
         return self.appSettingsFile
 
+    def getSetting(self, setting):
+        configReader = ConfigParser.SafeConfigParser()
+        configReader.read(self.getSettingsFile())
+        settingFound = False
+        for section_name in configReader.sections():
+            for name, value in configReader.items(section_name):
+                #print '  %s = %s' % (name, value)
+                if setting in name:
+                    settingFound = True
+                    settingValue = value
+        if settingFound:
+            return settingValue
+        else:
+            return None
+
+
+
     def install(self):
         if not os.path.isfile(self.appSettingsFile):
             self.setInstallDirectory()
