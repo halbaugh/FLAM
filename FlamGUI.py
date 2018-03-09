@@ -728,7 +728,7 @@ class IngestPanel(QtGui.QWidget):
     def getCurShow(self):
         return self.showSelectComboBox.currentText().upper()
 
-#testpush2
+
 
 
 def main():
