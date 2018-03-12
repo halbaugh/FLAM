@@ -152,8 +152,9 @@ class FLAMWidget(QtGui.QWidget):
 
         #Top Left Pane
         self.infoPane = ProjectInfoFrame()
-        self.infoPane.updateProjectName(self.showSelectionPane.getCurrentShow().getName())
-        self.infoPane.updateShotName(self.showSelectionPane.getCurrentShot().getName())
+        if self.showSelectionPane.getCurrentShow():
+            self.infoPane.updateProjectName(self.showSelectionPane.getCurrentShow().getName())
+            self.infoPane.updateShotName(self.showSelectionPane.getCurrentShot().getName())
 
         #Adds control based on show/shot changes
         self.showSelectionPane.addInfoPane(self.infoPane)
@@ -279,9 +280,9 @@ class ProjectInfoFrame(QtGui.QFrame):
         self.labelTextColor = "rgb(150, 150, 150)"
         self.infoTextColor = "rgb(220, 220, 220)"
 
-        self.projectName = "Terminator 20 Billion"
-        self.shotName = "Serious Test Shot"
-        self.shotFrameRange = "1-57"
+        self.projectName = ""
+        self.shotName = ""
+        self.shotFrameRange = ""
         ###
         ###
 
@@ -376,8 +377,11 @@ class ShowSelectionPanel(QtGui.QFrame):
 
 
         #prep to create shot list
-        curShowId = self.getCurrentShow().getShowID()
-        self.setCurrentShotList(db.getAllShots(curShowId))
+        try:
+            curShowId = self.getCurrentShow().getShowID()
+            self.setCurrentShotList(db.getAllShots(curShowId))
+        except AttributeError, e:
+            print "Database is currently empty. ERR: %s" % e
         curShotList = self.getCurrentShotList()
 
         ####SHOT LIST FOR CURRENT PROJECT
@@ -390,9 +394,10 @@ class ShowSelectionPanel(QtGui.QFrame):
         self.shotCombo.currentIndexChanged.connect(self.shotComboChanged)
 
         curShotName = self.shotCombo.currentText()
-        for s in curShotList:
-            if s.getName() == curShotName:
-                self.setCurrentShot(s)
+        if curShotList:
+            for s in curShotList:
+                if s.getName() == curShotName:
+                    self.setCurrentShot(s)
 
         #print "FINISHED COMBO BOX INIT."
 
