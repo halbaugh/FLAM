@@ -27,13 +27,7 @@ class FlamGui(QtGui.QMainWindow):
 
         self.appStyle = '{background-color: rgb(60, 60, 60);}'
         self.setStyleSheet("QMainWindow" + self.appStyle)
-        try:
-            myFlamInstall = FlamInstall()
-            myFlamInstall.install()
-
-        except Exception, e:
-            print "Error installing.  Double check..."
-            print "Error: %s" % e
+        
         self.initUI()
         
 
@@ -742,16 +736,6 @@ class IngestPanel(QtGui.QWidget):
 
 
 
-
-
-
-
-
-
-
-
-
-
 def main():
     
     app = QtGui.QApplication(sys.argv)
@@ -762,4 +746,12 @@ def main():
 
 
 if __name__ == '__main__':
+    try:
+            myFlamInstall = FlamInstall()
+            myFlamInstall.install()
+
+    except Exception, e:
+        print "Error installing.  Double check..."
+        print "Error: %s" % e
+
     main()

@@ -1,11 +1,17 @@
 #showFolderStructure.py
 
 import os
-
+import shutil
+from getpass import getuser
+username = getuser()
 
 
 
 def makeDefaultShowFolder(showName, path):
+    ###
+    ##Makes basic show folder structure.
+    ##Show->Shots
+    ###
     showLoc = os.path.join(path, showName)
     fullPath = os.path.join(showLoc,("SHOTS"))
 
@@ -16,9 +22,14 @@ def makeDefaultShowFolder(showName, path):
         print "Show '%s' exists. Skipping folder creation." % showName
         #print "WindowsError:", e
 
+
+
 def makeDefaultShotFolder(showName, shotName, path):
+    #Builds show path
     showLoc = os.path.join(path, showName)
+    #Builds "SHOTS" subfolder path
     shotsLoc = os.path.join(showLoc,"SHOTS")
+    #Builds new shot folder
     shotPath = os.path.join(shotsLoc, shotName)
 
     #folders
@@ -52,7 +63,26 @@ def makeDefaultShotFolder(showName, shotName, path):
                 #print "WindowsError:", e
 
 
+def rmShow(showName):
+    flamDBPath = r"/path/to/your/db/"
+    showPath = os.path.join(flamDBPath, showName)
+    shutil.rmtree(showPath)
+    pass
 
+def rmShot(showName, shotName):
+    flamDBPath = r"/path/to/your/db/"
+    showPath = os.path.join(flamDBPath, showName)
+    shotPath = os.path.join(showPath, shotName)
+    shutil.rmtree(shotPath)
+    pass
+
+def rmAsset(showName, shotName, assetName):
+    flamDBPath = r"/path/to/your/db/"
+    showPath = os.path.join(flamDBPath, showName)
+    shotPath = os.path.join(showPath, shotName)
+    assetPath = os.path.join(shotPath, assetName)
+    shutil.rmtree(assetPath)
+    pass
 
 
 
@@ -60,10 +90,10 @@ def makeDefaultShotFolder(showName, shotName, path):
 def main():
     showName = "UNK"
     testShotName = "tst_0010"
-    testPath = r"Z:\Localize"
+    testPath = r"C:\Users\%s\Desktop\FLAM_Test"%username
 
-    #makeDefaultShowFolder(showName, testPath)
-    #makeDefaultShotFolder(showName, testShotName, testPath)
+    makeDefaultShowFolder(showName, testPath)
+    makeDefaultShotFolder(showName, testShotName, testPath)
 
 
 if __name__ == "__main__":
