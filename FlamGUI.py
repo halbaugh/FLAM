@@ -323,7 +323,10 @@ class ShowSelectionPanel(QtGui.QFrame):
         self.infoPane = None
 
         self.currentShotList = []
-        self.showList = db.getAllShows()
+        try:
+            self.showList = db.getAllShows()
+        except:
+            self.showList = []
 
 
         self.buildFrame()
@@ -367,7 +370,11 @@ class ShowSelectionPanel(QtGui.QFrame):
         #WILL HAVE TO ELIMINATE THE POSSIBILITY OF DUPLICATES
         curShowName = self.projectCombo.currentText()
         #Saving Show object to be easily tangible
-        self.setCurrentShow(db.getShow(curShowName))
+        try:
+            self.setCurrentShow(db.getShow(curShowName))
+        except Exception, e:
+            print "self.setCurrentShow(db.getShow(curShowName))\n%s" % e
+
 
 
         #prep to create shot list
