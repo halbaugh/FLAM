@@ -72,6 +72,7 @@ class FlamShot(Base):
 
     show_id = Column(Integer, ForeignKey('show.id'))
     show = relationship(FlamShow, backref="shot", cascade="save-update, delete")
+    path = Column(String(250), nullable=False)
     ####DB TABLES####
 
 
@@ -83,8 +84,9 @@ class FlamShot(Base):
     '''
 
 
-    def createAsset(self, name, path):
-        tempAsset = FlamShotAsset(name, path)
+    def createAsset(self, name):
+        path = os.path.join(self.getShotPath, name)
+        tempAsset = FlamShotAsset(name = name, shot_id = self.getShotID(),shot = self.getShotName(), path = path)
         self.addToAssetList(tempAsset)
         return tempAsset
 
@@ -99,6 +101,14 @@ class FlamShot(Base):
     def getShow_id(self):
         return self.show_id
 
+    def getShotID(self):
+        return self.id
+
+    def getShotName(self):
+        return self.name
+
+    def getShotPath(self):
+        return self.path
 
 
     def __str__(self):
