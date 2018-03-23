@@ -6,7 +6,6 @@ from getpass import getuser
 username = getuser()
 
 
-
 def makeDefaultShowFolder(showName, path):
     ###
     ##Makes basic show folder structure.

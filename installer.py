@@ -10,7 +10,7 @@ from getpass import getuser
 username = getuser()
 
 ########################
-testing = True
+testing = False
 ########################
 
 
@@ -24,6 +24,9 @@ class FlamInstall(object):
     def __init__(self):
         self.appSettingsFolder = r"C:\\Users\\%s\\AppData\\Local\\FLAM" % username
         self.appSettingsFile = os.path.join(self.appSettingsFolder, 'FLAMSettings.ini')
+        self.dbPath = r"sqlite:///C:\\Users\\%s\\AppData\\Local\\FLAM" % username
+        self.appDB = os.path.join(self.dbPath, 'FLAM.db')
+
         try:
             os.makedirs(self.appSettingsFolder)
         except WindowsError, e:
@@ -67,6 +70,8 @@ class FlamInstall(object):
             self.config.set('Location', 'Server Path', self.installDir)
             self.config.set('Location', 'Local Path', '')
             self.config.set('Location', 'Settings', self.appSettingsFile)
+            self.config.set('Location', 'Database Path', self.appDB)
+
 
             # Writing our configuration file to 'example.cfg'
             with open(self.appSettingsFile, 'wb') as configfile:
@@ -115,14 +120,17 @@ class FlamInstall(object):
 
 
 
-if __name__ == '__main__':
+if __name__ == '__main__' or "installer" in __name__:
     print "\n\n"
     if testing:
         install = FlamInstall()
         install.setInstallDirectory()
         install.makeSettings()
         input("Install completed. Press enter to exit.")
+    else:
+        install = FlamInstall()
+        install.install()
 else:
-    print '%s.py imported.' % __name__
+    print '%s.py imported the installer.' % __name__
 
 

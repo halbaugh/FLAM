@@ -361,8 +361,11 @@ class ShowSelectionPanel(QtGui.QFrame):
 
 
         self.projectCombo = QtGui.QComboBox(self)
-        for s in showList:
-            self.projectCombo.addItem(s.getName())
+        if showList:
+            for s in showList:
+                self.projectCombo.addItem(s.getName())
+        else:
+            self.projectCombo.addItem("NO SHOWS")
         self.projectCombo.setStyleSheet(css.showComboBoxCSS)
         self.projectCombo.currentIndexChanged.connect(self.showComboChanged)
 
@@ -602,9 +605,11 @@ class IngestPanel(QtGui.QWidget):
         
         self.showSelectComboBox = QtGui.QComboBox()
         self.showSelectComboBox.setObjectName("ingestMode")
-
-        for s in self.showList:
-            self.showSelectComboBox.addItem(s.getName())
+        if self.showList:
+            for s in self.showList:
+                self.showSelectComboBox.addItem(s.getName())
+        else:
+            self.showSelectComboBox.addItem("NO SHOWS")
 
         self.showSelect_horizontalLayout.addWidget(self.showSelectLabel)
         self.showSelect_horizontalLayout.addWidget(self.showSelectComboBox)

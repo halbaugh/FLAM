@@ -4,15 +4,80 @@
 
 import os
 import sys
+import ConfigParser
+
 from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
- 
-Base = declarative_base()
- 
-DATABASE_LOCATION = 'sqlite:///testFLAM.db'
+from getpass import getuser
+
+
+###
+###
+###FIGURE OUT HOW TO USE SQLALCHEMY TO CONNECT TO THE PATH CORRECTLY
+###
+###
+
+
+def main():
+    #retrieve username
+    username = getuser()
+
+    #find setting file
+    appSettingsFolder = r"C:\\Users\\%s\\AppData\\Local\\FLAM" % username
+    appSettingsFile = os.path.join(appSettingsFolder, 'FLAMSettings.ini')
+
+    #retrieve db location
+    print "SETTING LOC: %s" % appSettingsFile
+    DATABASE_LOCATION = getSetting(appSettingsFile, "Database Path")
+
+    print "DB LOC %s" % DATABASE_LOCATION
+
+    #open sqlite db
+    engine = create_engine(DATABASE_LOCATION)
+    Base = declarative_base() 
+    Base.metadata.create_all(engine)
+    print "DONE RUNNING MAIN"
+
+
+
+def getSetting(file, setting):
+    print "getting setting: %s" % setting
+    configReader = ConfigParser.SafeConfigParser()
+    configReader.read(file)
+
+    for section_name in configReader.sections():
+        for name, value in configReader.items(section_name):
+            if setting.lower() == name.lower():
+                print "Found %s setting. Value: %s" % (name, value)
+                return value
+                break
+        print "Setting '%s' not found." % setting
+                
+
+
+
+if __name__ in "dbBase":
+    #retrieve username
+    username = getuser()
+
+    #find setting file
+    appSettingsFolder = r"C:\\Users\\%s\\AppData\\Local\\FLAM" % username
+    appSettingsFile = os.path.join(appSettingsFolder, 'FLAMSettings.ini')
+
+    #retrieve db location
+    print "SETTING LOC: %s" % appSettingsFile
+    DATABASE_LOCATION = getSetting(appSettingsFile, "Database Path")
+
+    print "DB LOC %s" % DATABASE_LOCATION
+
+    #open sqlite db
+    engine = create_engine(DATABASE_LOCATION)
+    Base = declarative_base() 
+    Base.metadata.create_all(engine)
+    print "DONE RUNNING MAIN"
 
 class FlamShow(Base):
     ####DB TABLES####
@@ -151,6 +216,3 @@ class FlamShotAsset(Base):
 
 
 
-engine = create_engine(DATABASE_LOCATION)
-
-Base.metadata.create_all(engine)

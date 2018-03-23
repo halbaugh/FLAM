@@ -43,9 +43,14 @@ def getShow(showName):
 def getAllShows():
     print "DBQUERIES<-getAllShows()"
     session = makeSession()
-    tempShots = session.query(FlamShow).all()
-    session.close()
-    return tempShots
+    try:
+        tempShots = session.query(FlamShow).all()
+        session.close()
+        return tempShots
+    except Exception, e:
+        print "NO SHOWS\nERROR: %s" % e
+        session.close()
+
 
 
 def addShow(showName):
