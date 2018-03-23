@@ -48,7 +48,7 @@ def getAllShows():
         session.close()
         return tempShots
     except Exception, e:
-        print "NO SHOWS\nERROR: %s" % e
+        print "ERROR: NO SHOWS\nERROR: %s" % e
         session.close()
 
 

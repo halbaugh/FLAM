@@ -325,7 +325,9 @@ class ShowSelectionPanel(QtGui.QFrame):
         self.currentShotList = []
         try:
             self.showList = db.getAllShows()
-        except:
+            print "TRYING TO CALL ALL SHOWS"
+        except Exception, e:
+            print "COULD NOT GET ALL SHOWS\nERROR: %s" %e
             self.showList = []
 
 
@@ -361,11 +363,14 @@ class ShowSelectionPanel(QtGui.QFrame):
 
 
         self.projectCombo = QtGui.QComboBox(self)
+        print "first show list.", showList
+
         if showList:
+
             for s in showList:
                 self.projectCombo.addItem(s.getName())
         else:
-            self.projectCombo.addItem("NO SHOWS")
+            self.projectCombo.addItem("NO SHOWS VIEWERS")
         self.projectCombo.setStyleSheet(css.showComboBoxCSS)
         self.projectCombo.currentIndexChanged.connect(self.showComboChanged)
 
@@ -609,7 +614,7 @@ class IngestPanel(QtGui.QWidget):
             for s in self.showList:
                 self.showSelectComboBox.addItem(s.getName())
         else:
-            self.showSelectComboBox.addItem("NO SHOWS")
+            self.showSelectComboBox.addItem("NO SHOWS NO")
 
         self.showSelect_horizontalLayout.addWidget(self.showSelectLabel)
         self.showSelect_horizontalLayout.addWidget(self.showSelectComboBox)
